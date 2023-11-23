@@ -23,5 +23,4 @@ To start using the Imagen API project:
 
 ## License
 The Imagen API project is licensed under the Apache License 2.0. For more details on the terms and conditions, refer to the LICENSE file in the root of this project.
-```
 
