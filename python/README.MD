@@ -11,7 +11,7 @@ To use the Imagen API Client, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone [repository-url]
+   git clone git@github.com:imagenai/imagen-api.git
    ```
 2. Install required dependencies from the `requirements.txt` file:
    ```

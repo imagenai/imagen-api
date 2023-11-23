@@ -12,7 +12,7 @@ The Imagen API project is structured into several key components:
 To start using the Imagen API project:
 1. Clone the repository:
    ```
-   git clone [repository-url]
+   git clone git@github.com:imagenai/imagen-api.git
    ```
 2. Depending on your usage requirement, navigate to the specific directory. For the Python client, use:
    ```
