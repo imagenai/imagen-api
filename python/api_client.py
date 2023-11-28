@@ -55,12 +55,14 @@ class ImagenAPIClient:
         return response.json()['data']['project_uuid']
 
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
-                              subject_mask: bool = False, hdr_merge: bool = False):
-        response = requests.post(os.path.join(self.base_url, 'projects', project_uuid, 'edit'),
+                              subject_mask: bool = False, hdr_merge: bool = False,
+                              callback_url: Optional[str] = None):
+        response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
                                        'subject_mask': subject_mask,
                                        'profile_key': profile_key,
+                                       'callback_url': callback_url,
                                        'hdr_merge': hdr_merge})
         response.raise_for_status()
 
@@ -88,7 +90,7 @@ class ImagenAPIClient:
     def get_project_status(self, project_uuid):
         try:
             response = requests.get(
-                os.path.join(self.base_url, 'projects', project_uuid, 'edit', 'status'),
+                os.path.join(self.base_url, f'projects/{project_uuid}/edit/status'),
                 headers=self.headers
             )
             response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code.
@@ -119,7 +121,7 @@ class ImagenAPIClient:
 
     def download_artifacts(self, project_uuid: str):
         response = requests.get(
-            os.path.join(self.base_url, 'projects', project_uuid, 'edit', 'get_temporary_download_links'),
+            os.path.join(self.base_url, f'projects/{project_uuid}/edit/get_temporary_download_links'),
             headers=self.headers)
         response.raise_for_status()
         files_download_info = response.json()['data']['files_list']
@@ -129,7 +131,7 @@ class ImagenAPIClient:
 
 
 def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, profile_name: Optional[str] = None,
-        api_key: Optional[str] = None):
+        api_key: Optional[str] = None, callback_url: Optional[str] = None):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
@@ -142,7 +144,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
     # Upload all images
     imagen_client.upload_images(project_uuid=project_uuid)
     # Send project for editing
-    imagen_client.send_project_for_edit(project_uuid=project_uuid, profile_key=profile_key)
+    imagen_client.send_project_for_edit(project_uuid=project_uuid, profile_key=profile_key,
+                                        callback_url=callback_url)
     # Wait until project status is completed
     imagen_client.wait_for_project_to_complete(project_uuid=project_uuid)
     # Download all the artifacts
@@ -157,8 +160,9 @@ if __name__ == "__main__":
     parser.add_argument('--output_dir', type=str, required=True, help='Path to the output directory')
     parser.add_argument('--profile_name', type=str, required=True, help='Name of the profile')
     parser.add_argument('--api_key', type=str, required=False, help='API key')
+    parser.add_argument('--callback_url', type=str, required=False, help='Callback url', default=None)
 
     args = parser.parse_args()
 
     run(input_dir=args.input_dir, output_dir=args.output_dir, profile_name=args.profile_name,
-        api_key=args.api_key)
+        api_key=args.api_key, callback_url=args.callback_url)
