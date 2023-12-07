@@ -2,7 +2,7 @@ import argparse
 import os.path
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict
+from typing import Dict, List
 from typing import Optional
 
 import requests
@@ -41,6 +41,18 @@ class ImagenAPIClient:
         self.base_url = 'https://api-beta.imagen-ai.com/v1'
 
     def get_profile_key(self, profile_name: str):
+        """
+        Retrieves the profile key for a given profile name.
+
+        Args:
+            profile_name (str): Name of the profile to fetch the key for.
+
+        Returns:
+            str: The profile key corresponding to the given profile name.
+
+        Raises:
+            InvalidProfileNameException: If the profile name is not found.
+        """
         response = requests.get(os.path.join(self.base_url, 'profiles'), headers=self.headers)
         response.raise_for_status()
         profiles = response.json()['data']['profiles']
@@ -50,12 +62,32 @@ class ImagenAPIClient:
         raise InvalidProfileNameException(f'Profile {profile_name} not found!')
 
     def create_project(self) -> str:
+        """
+        Creates a new project and returns its UUID.
+
+        Returns:
+            str: The UUID of the newly created project.
+        """
         response = requests.post(os.path.join(self.base_url, 'projects/'), headers=self.headers)
         response.raise_for_status()
         return response.json()['data']['project_uuid']
 
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
                               subject_mask: bool = False, hdr_merge: bool = False):
+        """
+        Sends a project for editing with the specified parameters.
+
+        Args:
+            project_uuid (str): The UUID of the project.
+            profile_key (str): The profile key.
+            crop (bool): Whether to crop the image.
+            straighten (bool): Whether to straighten the image.
+            subject_mask (bool): Whether to apply a subject mask.
+            hdr_merge (bool): Whether to apply HDR merge.
+
+        Returns:
+            None
+        """
         response = requests.post(os.path.join(self.base_url, 'projects', project_uuid, 'edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -73,7 +105,16 @@ class ImagenAPIClient:
             resp = requests.put(upload_link, data=f.read(), headers=headers)
             resp.raise_for_status()
 
-    def upload_images(self, project_uuid: str):
+    def get_upload_links(self, project_uuid: str) -> List[str]:
+        """
+        Retrieves temporary upload links for files in the input directory.
+
+        Args:
+            project_uuid (str): The UUID of the project to get upload links for.
+
+        Returns:
+            list: A list of dictionaries containing file names and their respective upload links.
+        """
         files = []
         for file_path in os.listdir(self.input_dir):
             file_data = {'file_name': os.path.basename(file_path)}
@@ -81,9 +122,20 @@ class ImagenAPIClient:
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/get_temporary_upload_links'),
                                  json={'files_list': files}, headers=self.headers)
         response.raise_for_status()
-        all_files_data = response.json()['data']['files_list']
+        return response.json()['data']['files_list']
+
+    def upload_images(self, files_upload_link: List[str]):
+        """
+        Uploads images to the provided upload links.
+
+        Args:
+            files_upload_link (list): A list of dictionaries containing file names and their respective upload links.
+
+        Returns:
+            None
+        """
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            list(tqdm(executor.map(self._upload_image, all_files_data), total=len(all_files_data)))
+            list(tqdm(executor.map(self._upload_image, files_upload_link), total=len(files_upload_link)))
 
     def get_project_status(self, project_uuid):
         try:
@@ -97,6 +149,15 @@ class ImagenAPIClient:
             raise Exception(f'Error fetching project status: {e}')
 
     def wait_for_project_to_complete(self, project_uuid: str):
+        """
+        Retrieves the current status of a project.
+
+        Args:
+            project_uuid (str): The UUID of the project.
+
+        Returns:
+            str: The current status of the project.
+        """
         status = self.get_project_status(project_uuid)
         while status != self.STATUS_COMPLETED:
             if status == self.STATUS_FAILED:
@@ -118,6 +179,15 @@ class ImagenAPIClient:
             file.write(response.content)
 
     def download_artifacts(self, project_uuid: str):
+        """
+        Downloads all artifacts for a completed project.
+
+        Args:
+            project_uuid (str): The UUID of the project.
+
+        Returns:
+            None
+        """
         response = requests.get(
             os.path.join(self.base_url, 'projects', project_uuid, 'edit', 'get_temporary_download_links'),
             headers=self.headers)
@@ -139,8 +209,10 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         profile_key = imagen_client.get_profile_key(profile_name=profile_name)
     # Create project
     project_uuid = imagen_client.create_project()
+    # Get upload links
+    files_upload_link = imagen_client.get_upload_links(project_uuid=project_uuid)
     # Upload all images
-    imagen_client.upload_images(project_uuid=project_uuid)
+    imagen_client.upload_images(files_upload_link=files_upload_link)
     # Send project for editing
     imagen_client.send_project_for_edit(project_uuid=project_uuid, profile_key=profile_key)
     # Wait until project status is completed
