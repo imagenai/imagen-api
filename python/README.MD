@@ -23,7 +23,7 @@ To use the Imagen API Client, follow these steps:
 Run the script from the command line, providing necessary arguments:
 
 ```
-python api_client.py --input-dir [input directory] --output-dir [output directory] --api-key [your API key]
+python3 api_client.py --input_dir [input directory] --output_dir [output directory] --api_key [your API key] --profile_name [name of a profile]
 ```
 
 ## API Key
