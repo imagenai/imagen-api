@@ -1,0 +1,418 @@
+{
+	"info": {
+		"_postman_id": "cda67b1e-a6d8-418b-8da8-306a57c93ebf",
+		"name": "ImagenAPI Client",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25026516",
+		"_collection_link": "https://universal-capsule-555727.postman.co/workspace/Idan's-Workspace~a3cecf29-ceb5-49db-8372-e83bc19b224f/collection/25026516-cda67b1e-a6d8-418b-8da8-306a57c93ebf?action=share&source=collection_link&creator=25026516"
+	},
+	"item": [
+		{
+			"name": "Get Profile Key",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/profiles",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"profiles"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Project ",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get temporary upload links",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"files_list\": [\n        {\"file_name\": \"922A4846.dng\"},\n        {\"file_name\": \"922A4832.dng\"},\n        {\"file_name\": \"922A4818.dng\"},\n        {\"file_name\": \"922A4809.dng\"}\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/get_temporary_upload_links",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"get_temporary_upload_links"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send Project For Edit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"crop\": false,\n   \"straighten\": false,\n   \"subject_mask\": false,\n   \"profile_key\": \"{{PROFILE_KEY}}\",\n   \"hdr_merge\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/edit",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"edit"
+					],
+					"query": [
+						{
+							"key": "x-api-key",
+							"value": "{{API_KEY}}",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send Project For Export",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/export",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"export"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get project edit status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/edit/status",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"edit",
+						"status"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get project export status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/export/status",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"export",
+						"status"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get edit temporary download links",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/edit/get_temporary_download_links",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"edit",
+						"get_temporary_download_links"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get export temporary download links",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{IMAGEN_API_BASE_URL}}/projects/{{PROJECT_UUID}}/export/get_temporary_download_links",
+					"host": [
+						"{{IMAGEN_API_BASE_URL}}"
+					],
+					"path": [
+						"projects",
+						"{{PROJECT_UUID}}",
+						"export",
+						"get_temporary_download_links"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "API_GATEWAY_BASE_URL",
+			"value": "https://api-beta.imagen-ai.com/v1",
+			"type": "string"
+		}
+	]
+}
