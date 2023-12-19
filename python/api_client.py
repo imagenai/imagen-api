@@ -38,7 +38,11 @@ class ImagenAPIClient:
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.project_uuid = None
-        self.base_url = 'https://api-beta.imagen-ai.com/v1'
+        # self.base_url = 'https://api-beta.imagen-ai.com/v1' - prod url
+        # API KEY PROD - 8unDdGEGYnajYnDVLnc_1LKSFrnFm8lhR62I1Ltkxb8
+        self.base_url = 'https://api.dev.imagen-ai.com/v1'  # dev url
+        # bucket name -
+        # API KEY DEV - J9NQEXTnShx3M5YwOVLm1PO3J0rOOzH8jU-EVfLdKXM
 
     def get_profile_key(self, profile_name: str):
         response = requests.get(os.path.join(self.base_url, 'profiles'), headers=self.headers)
@@ -57,13 +61,13 @@ class ImagenAPIClient:
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
                               subject_mask: bool = False, hdr_merge: bool = False,
                               callback_url: Optional[str] = None):
-        response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
-                                 headers=self.headers,
-                                 json={'crop': crop, "straighten": straighten,
-                                       'subject_mask': subject_mask,
-                                       'profile_key': profile_key,
-                                       'callback_url': callback_url,
-                                       'hdr_merge': hdr_merge})
+        url = os.path.join(self.base_url, f'projects/{project_uuid}/edit')
+        json_data = {'crop': crop, "straighten": straighten,
+                     'subject_mask': subject_mask,
+                     'profile_key': profile_key,
+                     'callback_url': callback_url,
+                     'hdr_merge': hdr_merge}
+        response = requests.post(url, headers=self.headers, json=json_data)
         response.raise_for_status()
 
     @retry(exceptions=Exception, tries=3)
@@ -80,6 +84,7 @@ class ImagenAPIClient:
         for file_path in os.listdir(self.input_dir):
             file_data = {'file_name': os.path.basename(file_path)}
             files.append(file_data)
+        print(files)
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/get_temporary_upload_links'),
                                  json={'files_list': files}, headers=self.headers)
         response.raise_for_status()
@@ -128,41 +133,3 @@ class ImagenAPIClient:
         os.makedirs(self.output_dir, exist_ok=True)
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             list(tqdm(executor.map(self._download_artifact, files_download_info), total=len(files_download_info)))
-
-
-def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, profile_name: Optional[str] = None,
-        api_key: Optional[str] = None, callback_url: Optional[str] = None):
-    if not profile_key and not profile_name:
-        raise MissingAPIKeyException
-    imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
-                                    api_key=api_key)
-    # Get profile key
-    if not profile_key:
-        profile_key = imagen_client.get_profile_key(profile_name=profile_name)
-    # Create project
-    project_uuid = imagen_client.create_project()
-    # Upload all images
-    imagen_client.upload_images(project_uuid=project_uuid)
-    # Send project for editing
-    imagen_client.send_project_for_edit(project_uuid=project_uuid, profile_key=profile_key,
-                                        callback_url=callback_url)
-    # Wait until project status is completed
-    imagen_client.wait_for_project_to_complete(project_uuid=project_uuid)
-    # Download all the artifacts
-    imagen_client.download_artifacts(project_uuid=project_uuid)
-
-
-# Running the function
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process some paths and a profile name.")
-
-    parser.add_argument('--input_dir', type=str, required=True, help='Path to the input directory')
-    parser.add_argument('--output_dir', type=str, required=True, help='Path to the output directory')
-    parser.add_argument('--profile_name', type=str, required=True, help='Name of the profile')
-    parser.add_argument('--api_key', type=str, required=False, help='API key')
-    parser.add_argument('--callback_url', type=str, required=False, help='Callback url', default=None)
-
-    args = parser.parse_args()
-
-    run(input_dir=args.input_dir, output_dir=args.output_dir, profile_name=args.profile_name,
-        api_key=args.api_key, callback_url=args.callback_url)
