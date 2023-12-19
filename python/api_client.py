@@ -45,7 +45,7 @@ class ImagenAPIClient:
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.project_uuid = None
-        self.base_url = 'https://api.dev.imagen-ai.com/v1'
+        self.base_url = 'https://api-beta.imagen-ai.com/v1'
 
     def get_profile_key(self, profile_name: str):
         response = requests.get(os.path.join(self.base_url, 'profiles'), headers=self.headers)
