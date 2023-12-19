@@ -2,7 +2,7 @@ from typing import Optional
 
 import typer
 
-from api_client import ImagenAPIClient
+from api_client import ImagenAPIClient, MissingAPIKeyException
 
 app = typer.Typer()
 
