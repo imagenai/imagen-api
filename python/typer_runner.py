@@ -8,10 +8,15 @@ app = typer.Typer()
 
 
 @app.command()
-def run(input_dir: str = typer.Option(..., "--input_dir", help="Path to the input directory"),
-        output_dir: str = typer.Option(..., "--output_dir", help="Path to the output directory"),
-        profile_name: Optional[str] = typer.Option(None, "--profile_name", help="Name of the profile"),
-        api_key: Optional[str] = typer.Option(None, "--api_key", help="API key"),
+def run(
+        input_dir: str = typer.Option(..., "--input_dir", help="Path to the input directory",
+                                      prompt="Please insert your image for editing folder name/location"),
+        output_dir: str = typer.Option(..., "--output_dir", help="Path to the output directory",
+                                       prompt="Please insert your image edited output folder name/location"),
+        profile_name: Optional[str] = typer.Option(None, "--profile_name", help="Name of the profile",
+                                                   prompt="Please insert your profile project name"),
+        api_key: Optional[str] = typer.Option(None, "--api_key", help="API key",
+                                              prompt="Please insert your unique API Key"),
         callback_url: Optional[str] = typer.Option(None, "--callback_url", help="Callback URL"),
         profile_key: Optional[str] = typer.Option(None, "--profile_key", help="The key of the profile"),
         hdr_merge: bool = typer.Option(False, "--hdr_merge", help="Use HDR merge"),
