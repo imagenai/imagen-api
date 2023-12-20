@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Processing with Imagen AI</title>
-    <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Optional Bootstrap theme -->
     <link rel="stylesheet" href="https://bootswatch.com/4/superhero/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
+         <div class="text-center mb-4">
+            <img src="./templates/imagen_ai.png" alt="Logo" style="max-width: 150px;">
+        </div>
         <h1 class="mb-4 text-center">Image Processing Form</h1>
         <form method="post" action="/submit" class="needs-validation" novalidate>
 
@@ -34,8 +35,15 @@
                 <input type="text" class="form-control" id="api_key" name="api_key" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" onclick="showProgress()">Submit</button>
         </form>
+        <h4 class="mt-3" id="uploadTitle" style="display: none;">Upload Progress</h4>
+        <!-- Dummy progress bar -->
+        <div class="progress" style="height: 20px; display: none;" id="uploadProgress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100" id="progressBar">
+                0%
+            </div>
+        </div>
     </div>
 
     <!-- Optional JavaScript -->
@@ -43,5 +51,31 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function showProgress() {
+            var progressBar = document.getElementById('progressBar');
+            var uploadTitle = document.getElementById('uploadTitle');
+            var width = 0;
+
+            // Show the progress bar and title
+            document.getElementById('uploadProgress').style.display = 'block';
+            uploadTitle.style.display = 'block';
+
+            // Simulate non-linear progress
+            var id = setInterval(frame, 100); // adjust time here for progress speed
+            function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                } else {
+                    // Simulate variable progress speed
+                    var randomIncrement = Math.random() * 5; // Change 5 to adjust variability
+                    width = Math.min(width + randomIncrement, 100); // Ensure width doesn't exceed 100
+                    progressBar.style.width = width + '%';
+                    progressBar.textContent = Math.round(width) + '%';
+                }
+            }
+        }
+    </script>
 </body>
 </html>
