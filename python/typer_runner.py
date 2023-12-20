@@ -8,6 +8,52 @@ app = typer.Typer()
 
 
 @app.command()
+def run_gui(
+        input_dir: str,
+        output_dir: str,
+        profile_name: Optional[str] = None,
+        api_key: Optional[str] = None,
+        callback_url: Optional[str] = None,
+        profile_key: Optional[str] = None,
+        hdr_merge: bool = False,
+        crop: bool = False,
+        straighten: bool = False,
+        subject_mask: bool = False,
+        export: bool = False
+):
+    if not profile_key and not profile_name:
+        raise MissingAPIKeyException
+    imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
+                                    api_key=api_key)
+    # Get profile key
+    if not profile_key:
+        profile_key = imagen_client.get_profile_key(profile_name=profile_name)
+
+    # Create project
+    project_uuid = imagen_client.create_project()
+
+    # Upload all images
+    imagen_client.upload_images(project_uuid=project_uuid)
+
+    # Send project for editing
+    imagen_client.send_project_for_edit(project_uuid=project_uuid, profile_key=profile_key,
+                                        callback_url=callback_url, hdr_merge=hdr_merge, crop=crop,
+                                        straighten=straighten,
+                                        subject_mask=subject_mask)
+
+    # Wait until project status is completed
+    imagen_client.wait_for_project_edit_to_complete(project_uuid=project_uuid)
+
+    # Download all the artifacts
+    if export:
+        imagen_client.send_project_for_export(project_uuid=project_uuid)
+        imagen_client.wait_for_project_export_to_complete(project_uuid=project_uuid)
+        imagen_client.download_exported_files(project_uuid=project_uuid)
+    else:
+        imagen_client.download_edited_files(project_uuid=project_uuid)
+
+
+@app.command()
 def run(
         input_dir: str = typer.Option(..., "--input_dir", help="Path to the input directory",
                                       prompt="Please insert your image for editing folder name/location"),
