@@ -50,7 +50,7 @@ def run_typer():
     output_dir = get_folder_path("Enter the directory (absolute path) for processed images (Mandatory): ")
 
     profile_key = get_input("Enter your profile key (Optional): ")
-    profile_name = get_input("Enter your profile project name (Mandatory): ")
+    profile_name = get_input("Enter your profile project name (Optional): ")
     api_key = get_input("Enter your unique API Key (Mandatory): ")
 
     callback_url = get_input("Enter your callback URL (Optional): ")

@@ -24,3 +24,15 @@ To start using the Imagen API project:
 ## License
 The Imagen API project is licensed under the Apache License 2.0. For more details on the terms and conditions, refer to the LICENSE file in the root of this project.
 
+## How to Use Typer: 
+1. From your project folder enter
+   ```cd python```
+2. Type the following ```python typer_runner.py```
+3. Above step will start the program. 
+4. You will be prompt to enter your input images folder absolute location.
+5. You will be prompt to enter your processed desired images absolute output folder location.
+6. You will be prompt to enter your profile key (be advised that if you won't supply profile key will have to supply profile name).
+7. You will be prompt to enter your unique API IMAGEN KEY.
+8. Please follow additional parameters as for your needs. 
+9. Please look at the example image below:
+![Screenshot 2023-12-25 at 18.16.30.png](..%2F..%2F..%2FDesktop%2FScreenshot%202023-12-25%20at%2018.16.30.png)
