@@ -46,14 +46,14 @@ def run_typer():
     """
 
     # Request user inputs for directories, profile, and API key
-    input_dir = get_folder_path("Enter the directory for input images (Mandatory): ")
-    output_dir = get_folder_path("Enter the directory for processed images (Mandatory): ")
+    input_dir = get_folder_path("Enter the directory (absolute path) for input images (Mandatory): ")
+    output_dir = get_folder_path("Enter the directory (absolute path) for processed images (Mandatory): ")
 
     profile_key = get_input("Enter your profile key (Optional): ")
     profile_name = get_input("Enter your profile project name (Mandatory): ")
     api_key = get_input("Enter your unique API Key (Mandatory): ")
 
-    callback_url = get_input("Enter your unique API Key (Optional): ")
+    callback_url = get_input("Enter your callback URL (Optional): ")
 
     # Inquire about image processing preferences
     hdr_merge = get_boolean_choice("Enable HDR Merge: ")
