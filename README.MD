@@ -27,7 +27,7 @@ The Imagen API project is licensed under the Apache License 2.0. For more detail
 ## How to Use Typer: 
 1. From your project folder enter
    ```cd python```
-2. Type the following ```python typer_runner.py```
+2. Type the following ```python python/typer_runner.py```
 3. Above step will start the program. 
 4. You will be prompt to enter your input images folder absolute location.
 5. You will be prompt to enter your processed desired images absolute output folder location.
