@@ -35,4 +35,4 @@ The Imagen API project is licensed under the Apache License 2.0. For more detail
 7. You will be prompt to enter your unique API IMAGEN KEY.
 8. Please follow additional parameters as for your needs. 
 9. Please look at the example image below:
-![Screenshot 2023-12-25 at 18.16.30.png](..%2F..%2F..%2FDesktop%2FScreenshot%202023-12-25%20at%2018.16.30.png)
+![Screenshot 2023-12-25 at 18.16.30.png](python%2FScreenshot%202023-12-25%20at%2018.16.30.png)
