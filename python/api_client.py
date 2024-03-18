@@ -237,7 +237,7 @@ if __name__ == "__main__":
     parser.add_argument('--straighten', action='store_true', help='Do you want to use straighten?')
     parser.add_argument('--subject_mask', action='store_true', help='Do you want to use subject_mask?')
     parser.add_argument('--export', action='store_true', help='Whether to export to jpg or not')
-    parser.add_argument('--smooth_skin', action='store_true', help='Do you want use smooth skin?')
+    parser.add_argument('--smooth_skin', action='store_true', help='Enable smooth skin?')
 
     args = parser.parse_args()
 
