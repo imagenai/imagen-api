@@ -60,13 +60,15 @@ def run_typer():
     crop = get_boolean_choice("Enable Cropping: ")
     straighten = get_boolean_choice("Enable Straightening: ")
     subject_mask = get_boolean_choice("Enable Subject Masking: ")
+    smooth_skin = get_boolean_choice("Enable Smooth Skin: ")
 
     export = get_boolean_choice("Enable Export: ")
 
     # Execute the main processing function with the provided parameters
     run(input_dir=input_dir, output_dir=output_dir,
         profile_key=profile_key, profile_name=profile_name, api_key=api_key, callback_url=callback_url,
-        hdr_merge=hdr_merge, crop=crop, straighten=straighten, subject_mask=subject_mask, export=export)
+        hdr_merge=hdr_merge, crop=crop, straighten=straighten, subject_mask=subject_mask, smooth_skin=smooth_skin,
+        export=export)
 
 
 if __name__ == "__main__":
