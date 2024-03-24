@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os.path
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -60,11 +61,13 @@ class ImagenAPIClient:
 
     def create_project(self) -> str:
         response = requests.post(os.path.join(self.base_url, 'projects/'), headers=self.headers)
+        if response.status_code >= 400:
+            logging.getLogger().error(response.json())
         response.raise_for_status()
         return response.json()['data']['project_uuid']
 
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
-                              subject_mask: bool = False, hdr_merge: bool = False,
+                              subject_mask: bool = False, hdr_merge: bool = False, smooth_skin: bool = False,
                               callback_url: Optional[str] = None):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
@@ -72,7 +75,10 @@ class ImagenAPIClient:
                                        'subject_mask': subject_mask,
                                        'profile_key': profile_key,
                                        'callback_url': callback_url,
-                                       'hdr_merge': hdr_merge})
+                                       'hdr_merge': hdr_merge,
+                                       'smooth_skin': smooth_skin})
+        if response.status_code >= 400:
+            logging.getLogger().error(response.json())
         response.raise_for_status()
 
     @retry(exceptions=Exception, tries=3)
@@ -185,6 +191,7 @@ class ImagenAPIClient:
 
 def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, profile_name: Optional[str] = None,
         api_key: Optional[str] = None, callback_url: Optional[str] = None, hdr_merge: Optional[bool] = False,
+        smooth_skin: Optional[bool] = False,
         crop: Optional[bool] = False, straighten: Optional[bool] = False,
         subject_mask: Optional[bool] = False, export: Optional[bool] = False):
     if not profile_key and not profile_name:
@@ -202,7 +209,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
     imagen_client.send_project_for_edit(project_uuid=project_uuid, profile_key=profile_key,
                                         callback_url=callback_url, hdr_merge=hdr_merge, crop=crop,
                                         straighten=straighten,
-                                        subject_mask=subject_mask)
+                                        subject_mask=subject_mask,
+                                        smooth_skin=smooth_skin)
     # Wait until project status is completed
     imagen_client.wait_for_project_edit_to_complete(project_uuid=project_uuid)
     # Download all the artifacts
@@ -229,9 +237,11 @@ if __name__ == "__main__":
     parser.add_argument('--straighten', action='store_true', help='Do you want to use straighten?')
     parser.add_argument('--subject_mask', action='store_true', help='Do you want to use subject_mask?')
     parser.add_argument('--export', action='store_true', help='Whether to export to jpg or not')
+    parser.add_argument('--smooth_skin', action='store_true', help='Enable smooth skin?')
 
     args = parser.parse_args()
 
     run(input_dir=args.input_dir, output_dir=args.output_dir, profile_name=args.profile_name,
         api_key=args.api_key, callback_url=args.callback_url, hdr_merge=args.hdr_merge, profile_key=args.profile_key,
-        crop=args.crop, straighten=args.straighten, subject_mask=args.subject_mask, export=args.export)
+        crop=args.crop, straighten=args.straighten, subject_mask=args.subject_mask, export=args.export,
+        smooth_skin=args.smooth_skin)
