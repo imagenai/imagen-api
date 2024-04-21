@@ -68,7 +68,7 @@ class ImagenAPIClient:
 
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
                               subject_mask: bool = False, hdr_merge: bool = False, smooth_skin: bool = False,
-                              callback_url: Optional[str] = None):
+                              callback_url: Optional[str] = None, perspective_correction: bool = False):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -76,7 +76,8 @@ class ImagenAPIClient:
                                        'profile_key': profile_key,
                                        'callback_url': callback_url,
                                        'hdr_merge': hdr_merge,
-                                       'smooth_skin': smooth_skin})
+                                       'smooth_skin': smooth_skin,
+                                       'perspective_correction': perspective_correction})
         if response.status_code >= 400:
             logging.getLogger().error(response.json())
         response.raise_for_status()
@@ -193,7 +194,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         api_key: Optional[str] = None, callback_url: Optional[str] = None, hdr_merge: Optional[bool] = False,
         smooth_skin: Optional[bool] = False,
         crop: Optional[bool] = False, straighten: Optional[bool] = False,
-        subject_mask: Optional[bool] = False, export: Optional[bool] = False):
+        subject_mask: Optional[bool] = False, export: Optional[bool] = False,
+        perspective_correction: Optional[bool] = False):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
@@ -210,7 +212,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
                                         callback_url=callback_url, hdr_merge=hdr_merge, crop=crop,
                                         straighten=straighten,
                                         subject_mask=subject_mask,
-                                        smooth_skin=smooth_skin)
+                                        smooth_skin=smooth_skin,
+                                        perspective_correction=perspective_correction)
     # Wait until project status is completed
     imagen_client.wait_for_project_edit_to_complete(project_uuid=project_uuid)
     # Download all the artifacts
@@ -238,10 +241,11 @@ if __name__ == "__main__":
     parser.add_argument('--subject_mask', action='store_true', help='Do you want to use subject_mask?')
     parser.add_argument('--export', action='store_true', help='Whether to export to jpg or not')
     parser.add_argument('--smooth_skin', action='store_true', help='Enable smooth skin?')
+    parser.add_argument('--perspective_correction', action='store_true', help='Enable perspective correction?')
 
     args = parser.parse_args()
 
     run(input_dir=args.input_dir, output_dir=args.output_dir, profile_name=args.profile_name,
         api_key=args.api_key, callback_url=args.callback_url, hdr_merge=args.hdr_merge, profile_key=args.profile_key,
         crop=args.crop, straighten=args.straighten, subject_mask=args.subject_mask, export=args.export,
-        smooth_skin=args.smooth_skin)
+        smooth_skin=args.smooth_skin, perspective_correction=args.perspective_correction)
