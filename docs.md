@@ -11,7 +11,7 @@ These are the main steps in the process:
 
 ## Before you begin
 
-Before editing photos with Imagen API, subscribe to Imagen and ask the Imagen team for an API key. Also, learn how Imagen edits your photos and have a list of AI Profiles you want to use for editing.
+Before editing photos with Imagen API, sign up for Imagen and ask the Imagen team for an API key. Also, learn how Imagen edits your photos and have a list of AI Profiles you want to use for editing.
 
 Complete these steps:
 
