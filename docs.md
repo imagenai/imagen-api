@@ -64,6 +64,8 @@ When Imagen returns the edited files, these are the respective formats:
 Call GET `https://api-beta.imagen-ai.com/v1/profiles/` to get a list of AI Profiles available to edit your photos. 
 The response includes the Personal AI Profiles you created in the Imagen app and all available Talent AI Profiles. Each AI Profile has a `profile_key` that identifies it. You will need this `profile_key` when sending photos to edit.
 
+#### Response example
+
 ```
 {
     "data": {
@@ -205,6 +207,8 @@ We recommend creating a project for each shoot. A project organizes your photos 
 
 The response is the `project_uuid` used to identify this project. Use this `project_uuid` until the end of this flow, where you export your photos to JPEG.
 
+#### Response example
+
 ```
 {
     "data": {
@@ -341,7 +345,7 @@ The response includes a temporary link for each photo to Imagen’s S3 bucket on
 
 Download photos from Imagen’s S3 bucket on AWS with the temporary download links from the response in the previous step. Use any method you like. For sample code in Python, see `api_client.py` in the [Imagen API project](https://github.com/imagenai/imagen-api/tree/main) in GitHub.
 
-For more information on uploading files with a presigned URL, see this [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html) in the AWS documentation.
+For more information on downloading files with a presigned URL, see this [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html) in the AWS documentation.
 
 ## Export photos for delivery
 
@@ -396,7 +400,7 @@ The response includes a temporary link for each photo to Imagen’s S3 bucket on
 
 Download photos from Imagen’s S3 bucket on AWS with the temporary download links from the response in the previous step. Use any method you like. For sample code in Python, see `api_client.py` in the [Imagen API project](https://github.com/imagenai/imagen-api/tree/main) in GitHub.
 
-For more information on uploading files with a presigned URL, see this [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html) in the AWS documentation.
+For more information on downloading files with a presigned URL, see this [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html) in the AWS documentation.
 
 #### Deliver your photos
 
