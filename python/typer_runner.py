@@ -11,7 +11,7 @@ app = typer.Typer()
 def get_folder_path(message: str) -> str:
     return inquirer.text(
         message=message,
-        validate=lambda input_dir: os.path.isdir(input_dir),
+        validate=lambda input_dir: os.path.isdir(input_dir.replace("\ ", " ").strip()),
     ).execute()
 
 
@@ -46,8 +46,8 @@ def run_typer():
     """
 
     # Request user inputs for directories, profile, and API key
-    input_dir = get_folder_path("Enter the directory (absolute path) for input images (Mandatory): ")
-    output_dir = get_folder_path("Enter the directory (absolute path) for processed images (Mandatory): ")
+    input_dir = get_folder_path("Enter the directory (absolute path) for input images (Mandatory): ").replace("\ ", " ").strip()
+    output_dir = get_folder_path("Enter the directory (absolute path) for processed images (Mandatory): ").replace("\ ", " ").strip()
 
     profile_key = get_input("Enter your profile key (Optional): ")
     profile_name = get_input("Enter your profile project name (Optional): ")
