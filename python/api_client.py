@@ -106,6 +106,7 @@ class ImagenAPIClient:
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             list(tqdm(executor.map(self._upload_image, all_files_data), total=len(all_files_data)))
 
+    @retry(exceptions=Exception, tries=5, backoff=5)
     def get_project_status(self, project_uuid: str, is_export: bool = False):
         operation = 'export' if is_export else 'edit'
         try:
