@@ -86,7 +86,7 @@ class ImagenAPIClient:
     def _upload_image(self, file_upload_details: Dict):
         upload_link = file_upload_details['upload_link']
         file_name = file_upload_details['file_name']
-        headers = {}
+        headers = {"Content-Type": ""}
         with open(os.path.join(self.input_dir, file_name), 'rb') as f:
             resp = requests.put(upload_link, data=f.read(), headers=headers)
             resp.raise_for_status()
