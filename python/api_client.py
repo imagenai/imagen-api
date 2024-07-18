@@ -16,13 +16,12 @@ from retry import retry
 from tqdm import tqdm
 
 MAX_WORKERS = int(os.environ.get('MAX_WORKERS', 10))
-INCLUDE_MD5 = os.environ.get("INCLUDE_MD5", False)
 
 
 # Function to calculate base64-encoded MD5 digest
 def calculate_base64_md5(file_path):
     with open(file_path, 'rb') as f:
-    # Read the file and calculate the MD5 digest in one step
+        # Read the file and calculate the MD5 digest in one step
         digest = hashlib.md5(f.read()).digest()
 
         # Base64 encode the digest and decode to a string
@@ -50,7 +49,7 @@ class ImagenAPIClient:
     STATUS_FAILED = 'Failed'
     CHECK_STATUS_INTERVAL = 30  # seconds
 
-    def __init__(self, input_dir: str, output_dir: str, api_key: str):
+    def __init__(self, input_dir: str, output_dir: str, api_key: str, include_md5: bool = False):
         if not api_key:
             raise MissingAPIKeyException
         api_key = api_key if api_key else os.environ.get('API_KEY')
@@ -60,6 +59,7 @@ class ImagenAPIClient:
         self.output_dir = output_dir
         self.project_uuid = None
         self.base_url = 'https://api.dev.imagen-ai.com/v1/'
+        self.include_md5 = include_md5
 
     def get_profile_key(self, profile_name: str):
         response = requests.get(os.path.join(self.base_url, 'profiles'), headers=self.headers)
@@ -102,7 +102,7 @@ class ImagenAPIClient:
         upload_link = file_upload_details['upload_link']
         file_name = file_upload_details['file_name']
         headers = {"Content-Type": ""}
-        if INCLUDE_MD5:
+        if self.include_md5:
             headers["Content-MD5"] = calculate_base64_md5(os.path.join(self.input_dir, file_name))
         with open(os.path.join(self.input_dir, file_name), 'rb') as f:
             resp = requests.put(upload_link, data=f.read(), headers=headers)
@@ -117,7 +117,7 @@ class ImagenAPIClient:
             if file_name.startswith('.'):
                 print(f'Skipping hidden file {file_name}')
                 continue
-            if INCLUDE_MD5:
+            if self.include_md5:
                 file_data = {'file_name': file_name,
                              'md5': calculate_base64_md5(os.path.join(self.input_dir, file_name))}
             else:
@@ -217,11 +217,12 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         smooth_skin: Optional[bool] = False,
         crop: Optional[bool] = False, straighten: Optional[bool] = False,
         subject_mask: Optional[bool] = False, export: Optional[bool] = False,
-        perspective_correction: Optional[bool] = False, portrait_crop: bool = False):
+        perspective_correction: Optional[bool] = False, portrait_crop: bool = False,
+        include_md5: bool = False):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
-                                    api_key=api_key)
+                                    api_key=api_key, include_md5=include_md5)
     # Get profile key
     if not profile_key:
         profile_key = imagen_client.get_profile_key(profile_name=profile_name)
@@ -266,6 +267,7 @@ if __name__ == "__main__":
     parser.add_argument('--smooth_skin', action='store_true', help='Enable smooth skin?')
     parser.add_argument('--perspective_correction', action='store_true', help='Enable perspective correction?')
     parser.add_argument('--portrait_crop', action='store_true', help='Enable portrait crop?')
+    parser.add_argument('--include_md5', action='store_true', help='Send md5 hash with files')
 
     args = parser.parse_args()
 
@@ -273,4 +275,4 @@ if __name__ == "__main__":
         api_key=args.api_key, callback_url=args.callback_url, hdr_merge=args.hdr_merge, profile_key=args.profile_key,
         crop=args.crop, straighten=args.straighten, subject_mask=args.subject_mask, export=args.export,
         smooth_skin=args.smooth_skin, perspective_correction=args.perspective_correction,
-        portrait_crop=args.portrait_crop)
+        portrait_crop=args.portrait_crop, include_md5=args.include_md5)
