@@ -47,6 +47,10 @@ class ImagenAPIClient:
         self.output_dir = output_dir
         self.project_uuid = None
         self.base_url = 'https://api-beta.imagen-ai.com/v1/'
+<<<<<<< Updated upstream
+=======
+        self.include_md5 = include_md5
+>>>>>>> Stashed changes
 
     def get_profile_key(self, profile_name: str):
         response = requests.get(os.path.join(self.base_url, 'profiles'), headers=self.headers)
