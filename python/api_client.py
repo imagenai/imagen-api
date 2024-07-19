@@ -1,4 +1,6 @@
 import argparse
+import base64
+import hashlib
 import logging
 import os.path
 import time
@@ -14,6 +16,16 @@ from retry import retry
 from tqdm import tqdm
 
 MAX_WORKERS = int(os.environ.get('MAX_WORKERS', 10))
+
+
+# Function to calculate base64-encoded MD5 digest
+def calculate_base64_md5(file_path):
+    with open(file_path, 'rb') as f:
+        # Read the file and calculate the MD5 digest in one step
+        digest = hashlib.md5(f.read()).digest()
+
+        # Base64 encode the digest and decode to a string
+    return base64.b64encode(digest).decode('utf-8')
 
 
 class MissingAPIKeyException(Exception):
@@ -37,7 +49,7 @@ class ImagenAPIClient:
     STATUS_FAILED = 'Failed'
     CHECK_STATUS_INTERVAL = 30  # seconds
 
-    def __init__(self, input_dir: str, output_dir: str, api_key: str):
+    def __init__(self, input_dir: str, output_dir: str, api_key: str, include_md5: bool = False):
         if not api_key:
             raise MissingAPIKeyException
         api_key = api_key if api_key else os.environ.get('API_KEY')
@@ -46,7 +58,8 @@ class ImagenAPIClient:
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.project_uuid = None
-        self.base_url = 'https://api-beta.imagen-ai.com/v1/'
+        self.base_url = 'https://api.dev.imagen-ai.com/v1/'
+        self.include_md5 = include_md5
 
     def get_profile_key(self, profile_name: str):
         response = requests.get(os.path.join(self.base_url, 'profiles'), headers=self.headers)
@@ -68,7 +81,8 @@ class ImagenAPIClient:
 
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
                               subject_mask: bool = False, hdr_merge: bool = False, smooth_skin: bool = False,
-                              callback_url: Optional[str] = None, perspective_correction: bool = False):
+                              callback_url: Optional[str] = None, perspective_correction: bool = False,
+                              portrait_crop: bool = False):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -77,6 +91,7 @@ class ImagenAPIClient:
                                        'callback_url': callback_url,
                                        'hdr_merge': hdr_merge,
                                        'smooth_skin': smooth_skin,
+                                       'portrait_crop': portrait_crop,
                                        'perspective_correction': perspective_correction})
         if response.status_code >= 400:
             logging.getLogger().error(response.json())
@@ -86,7 +101,9 @@ class ImagenAPIClient:
     def _upload_image(self, file_upload_details: Dict):
         upload_link = file_upload_details['upload_link']
         file_name = file_upload_details['file_name']
-        headers = {}
+        headers = {"Content-Type": ""}
+        if self.include_md5:
+            headers["Content-MD5"] = calculate_base64_md5(os.path.join(self.input_dir, file_name))
         with open(os.path.join(self.input_dir, file_name), 'rb') as f:
             resp = requests.put(upload_link, data=f.read(), headers=headers)
             resp.raise_for_status()
@@ -100,7 +117,11 @@ class ImagenAPIClient:
             if file_name.startswith('.'):
                 print(f'Skipping hidden file {file_name}')
                 continue
-            file_data = {'file_name': file_name}
+            if self.include_md5:
+                file_data = {'file_name': file_name,
+                             'md5': calculate_base64_md5(os.path.join(self.input_dir, file_name))}
+            else:
+                file_data = {'file_name': file_name}
             files.append(file_data)
         all_files_data = self.get_temporary_upload_links(project_uuid=project_uuid, files=files)
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
@@ -196,11 +217,12 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         smooth_skin: Optional[bool] = False,
         crop: Optional[bool] = False, straighten: Optional[bool] = False,
         subject_mask: Optional[bool] = False, export: Optional[bool] = False,
-        perspective_correction: Optional[bool] = False):
+        perspective_correction: Optional[bool] = False, portrait_crop: bool = False,
+        include_md5: bool = False):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
-                                    api_key=api_key)
+                                    api_key=api_key, include_md5=include_md5)
     # Get profile key
     if not profile_key:
         profile_key = imagen_client.get_profile_key(profile_name=profile_name)
@@ -214,7 +236,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
                                         straighten=straighten,
                                         subject_mask=subject_mask,
                                         smooth_skin=smooth_skin,
-                                        perspective_correction=perspective_correction)
+                                        perspective_correction=perspective_correction,
+                                        portrait_crop=portrait_crop)
     # Wait until project status is completed
     imagen_client.wait_for_project_edit_to_complete(project_uuid=project_uuid)
     # Download all the artifacts
@@ -243,10 +266,13 @@ if __name__ == "__main__":
     parser.add_argument('--export', action='store_true', help='Whether to export to jpg or not')
     parser.add_argument('--smooth_skin', action='store_true', help='Enable smooth skin?')
     parser.add_argument('--perspective_correction', action='store_true', help='Enable perspective correction?')
+    parser.add_argument('--portrait_crop', action='store_true', help='Enable portrait crop?')
+    parser.add_argument('--include_md5', action='store_true', help='Send md5 hash with files')
 
     args = parser.parse_args()
 
     run(input_dir=args.input_dir, output_dir=args.output_dir, profile_name=args.profile_name,
         api_key=args.api_key, callback_url=args.callback_url, hdr_merge=args.hdr_merge, profile_key=args.profile_key,
         crop=args.crop, straighten=args.straighten, subject_mask=args.subject_mask, export=args.export,
-        smooth_skin=args.smooth_skin, perspective_correction=args.perspective_correction)
+        smooth_skin=args.smooth_skin, perspective_correction=args.perspective_correction,
+        portrait_crop=args.portrait_crop, include_md5=args.include_md5)
