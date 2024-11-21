@@ -82,7 +82,7 @@ class ImagenAPIClient:
     def send_project_for_edit(self, project_uuid: str, profile_key: str, crop: bool = False, straighten: bool = False,
                               subject_mask: bool = False, hdr_merge: bool = False, smooth_skin: bool = False,
                               callback_url: Optional[str] = None, perspective_correction: bool = False,
-                              portrait_crop: bool = False):
+                              portrait_crop: bool = False, crop_aspect_ratio: Optional[str] = None):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -92,7 +92,8 @@ class ImagenAPIClient:
                                        'hdr_merge': hdr_merge,
                                        'smooth_skin': smooth_skin,
                                        'portrait_crop': portrait_crop,
-                                       'perspective_correction': perspective_correction})
+                                       'perspective_correction': perspective_correction,
+                                       'crop_aspect_ratio': crop_aspect_ratio})
         if response.status_code >= 400:
             logging.getLogger().error(response.json())
         response.raise_for_status()
@@ -218,7 +219,7 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         crop: Optional[bool] = False, straighten: Optional[bool] = False,
         subject_mask: Optional[bool] = False, export: Optional[bool] = False,
         perspective_correction: Optional[bool] = False, portrait_crop: bool = False,
-        include_md5: bool = False):
+        include_md5: bool = False, crop_aspect_ratio: Optional[str] = None):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
@@ -237,7 +238,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
                                         subject_mask=subject_mask,
                                         smooth_skin=smooth_skin,
                                         perspective_correction=perspective_correction,
-                                        portrait_crop=portrait_crop)
+                                        portrait_crop=portrait_crop,
+                                        crop_aspect_ratio=crop_aspect_ratio)
     # Wait until project status is completed
     imagen_client.wait_for_project_edit_to_complete(project_uuid=project_uuid)
     # Download all the artifacts
@@ -267,6 +269,10 @@ if __name__ == "__main__":
     parser.add_argument('--smooth_skin', action='store_true', help='Enable smooth skin?')
     parser.add_argument('--perspective_correction', action='store_true', help='Enable perspective correction?')
     parser.add_argument('--portrait_crop', action='store_true', help='Enable portrait crop?')
+    parser.add_argument('--crop_aspect_ratio', type=str, required=False, default=None,
+                        help="Aspect ratio for crop. Possible values are: '2X3', '4X5', '5X7'."
+                             "If 'crop' is set to True and 'crop_aspect_ratio' is not provided, the default aspect ratio will be '2X3'. "
+                             "If 'portrait_crop' is set to True and 'crop_aspect_ratio' is not provided, the default aspect ratio will be '4X5'.")
     parser.add_argument('--include_md5', action='store_true', help='Send md5 hash with files')
 
     args = parser.parse_args()
@@ -275,4 +281,4 @@ if __name__ == "__main__":
         api_key=args.api_key, callback_url=args.callback_url, hdr_merge=args.hdr_merge, profile_key=args.profile_key,
         crop=args.crop, straighten=args.straighten, subject_mask=args.subject_mask, export=args.export,
         smooth_skin=args.smooth_skin, perspective_correction=args.perspective_correction,
-        portrait_crop=args.portrait_crop, include_md5=args.include_md5)
+        portrait_crop=args.portrait_crop, include_md5=args.include_md5, crop_aspect_ratio=args.crop_aspect_ratio)
