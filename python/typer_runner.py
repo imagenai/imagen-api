@@ -51,8 +51,7 @@ def run_typer():
     output_dir = get_folder_path("Enter the directory (absolute path) for processed images (Mandatory): ").replace("\ ",
                                                                                                                    " ").strip()
 
-    profile_key = get_input("Enter your profile key (Optional): ")
-    profile_name = get_input("Enter your profile project name (Optional): ")
+    profile_key = get_input("Enter your profile key:  ")
     api_key = get_input("Enter your unique API Key (Mandatory): ")
 
     callback_url = get_input("Enter your callback URL (Optional): ")
@@ -64,6 +63,10 @@ def run_typer():
     subject_mask = get_boolean_choice("Enable Subject Masking: ")
     smooth_skin = get_boolean_choice("Enable Smooth Skin: ")
     window_pull = get_boolean_choice("Enable Window Pull: ")
+    sky_replacement = get_boolean_choice("Enable Sky Replacement: ")
+    sky_replacement_template_id = None
+    if sky_replacement:
+        sky_replacement_template_id = int(get_input("Enter the Sky Template ID:  "))
 
     export = get_boolean_choice("Enable Export: ")
 
@@ -72,6 +75,7 @@ def run_typer():
         profile_key=profile_key, profile_name=profile_name, api_key=api_key, callback_url=callback_url,
         hdr_merge=hdr_merge, crop=crop, straighten=straighten, subject_mask=subject_mask, smooth_skin=smooth_skin,
         window_pull=window_pull,
+        sky_replacement=sky_replacement, sky_replacement_template_id=sky_replacement_template_id,
         export=export)
 
 
