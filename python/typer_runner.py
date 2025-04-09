@@ -66,7 +66,7 @@ def run_typer():
     sky_replacement = get_boolean_choice("Enable Sky Replacement: ")
     sky_replacement_template_id = None
     if sky_replacement:
-        sky_replacement_template_id = int(get_input("Enter the Sky Template ID:  "))
+        sky_replacement_template_id = int(get_input("Enter the Sky Template ID: [1-3] "))
 
     export = get_boolean_choice("Enable Export: ")
 

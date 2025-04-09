@@ -280,7 +280,7 @@ if __name__ == "__main__":
     parser.add_argument('--include_md5', action='store_true', help='Send md5 hash with files')
     parser.add_argument('--sky_replacement', action='store_true', help='Enable sky replacement?')
     parser.add_argument('--sky_replacement_template_id', type=int, required=False,
-                        help='Sky replacement template id', default=None)
+                        help='Sky replacement template id [1-3]', default=None)
 
     args = parser.parse_args()
 
