@@ -1,19 +1,12 @@
 # Imagen API
 
-## Introduction
-
-Welcome to the Imagen API project, designed to provide an efficient and user-friendly interface for image processing and
-manipulation. This project encompasses various tools and components, including a Python package, to interact with the
-Imagen API seamlessly.
-
+Imagen API streamlines and automates the photographer’s post-production editing workflow, similar to the Imagen app. This project includes useful tools and components to jumpstart your development with the Imagen API, including a Python package for the Imagen API client.
 
 ## Project Structure
 
 The Imagen API project is structured into several key components:
 
-- `/python`: This directory contains the Python package for the Imagen API Client. It includes all the necessary scripts
-  and instructions for interacting with the Imagen API using Python. For detailed instructions, including installation
-  and usage, please refer to the README in the `/python` directory.
+- : 
 
 ## Getting Started
 
@@ -28,6 +21,12 @@ To start using the Imagen API project:
    cd python
    ```
 3. Follow the instructions in the respective README files for setup and usage guidelines.
+
+## Python package
+
+The `/python` directory includes the Python package for the Imagen API client and the necessary scripts
+and instructions for using the Imagen API with Python. For detailed instructions, including installation
+and usage, see the README in the `/python` directory.
 
 ## Postman
 
