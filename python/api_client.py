@@ -292,7 +292,8 @@ if __name__ == "__main__":
                         help='Sky replacement template id [1-3]', default=None)
     # hdr_output_compression is only relevant for raw images using with hdr_merge
     parser.add_argument('--hdr_output_compression', type=HDROutputCompression, required=False,
-                        help='The compression level of the output images. can either be LOSSY or LOSSLESS', default="LOSSY")
+                        help='The compression level of the output images. can either be LOSSY or LOSSLESS',
+                        default=None)
 
     args = parser.parse_args()
 
