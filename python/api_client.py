@@ -90,7 +90,7 @@ class ImagenAPIClient:
                               window_pull: bool = False,
                               portrait_crop: bool = False, sky_replacement: bool = False,
                               sky_replacement_template_id: Optional[int] = None,
-                              hdr_output_compression: HDROutputCompression = HDROutputCompression.LOSSY):
+                              hdr_output_compression:Optional[HDROutputCompression] = HDROutputCompression.LOSSY):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -233,7 +233,7 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         perspective_correction: Optional[bool] = False, portrait_crop: bool = False,
         window_pull: Optional[bool] = False,
         include_md5: bool = False, sky_replacement: bool = False, sky_replacement_template_id: Optional[int] = None,
-        hdr_output_compression: HDROutputCompression = HDROutputCompression.LOSSY):
+        hdr_output_compression: Optional[HDROutputCompression] = HDROutputCompression.LOSSY):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
