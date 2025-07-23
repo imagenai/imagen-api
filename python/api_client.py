@@ -5,6 +5,7 @@ import logging
 import os.path
 import time
 from concurrent.futures import ThreadPoolExecutor
+from enum import Enum
 from http import HTTPStatus
 from typing import Dict
 from typing import List
@@ -43,6 +44,10 @@ class InvalidProfileNameException(Exception):
 class InvalidAPIKey(Exception):
     pass
 
+
+class HDROutputCompression(Enum):
+    LOSSY = "LOSSY"
+    LOSSLESS = "LOSSLESS"
 
 class ImagenAPIClient:
     STATUS_COMPLETED = 'Completed'
@@ -85,7 +90,7 @@ class ImagenAPIClient:
                               window_pull: bool = False,
                               portrait_crop: bool = False, sky_replacement: bool = False,
                               sky_replacement_template_id: Optional[int] = None,
-                              hdr_output_compression: str = "LOSSY"):
+                              hdr_output_compression: HDROutputCompression = HDROutputCompression.LOSSY):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -228,7 +233,7 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         perspective_correction: Optional[bool] = False, portrait_crop: bool = False,
         window_pull: Optional[bool] = False,
         include_md5: bool = False, sky_replacement: bool = False, sky_replacement_template_id: Optional[int] = None,
-        hdr_output_compression: str = "LOSSY"):
+        hdr_output_compression: HDROutputCompression = HDROutputCompression.LOSSY):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
@@ -286,7 +291,7 @@ if __name__ == "__main__":
     parser.add_argument('--sky_replacement_template_id', type=int, required=False,
                         help='Sky replacement template id [1-3]', default=None)
     # hdr_output_compression is only relevant for raw images using with hdr_merge
-    parser.add_argument('--hdr_output_compression', type=str, required=False,
+    parser.add_argument('--hdr_output_compression', type=HDROutputCompression, required=False,
                         help='The compression level of the output images. can either be LOSSY or LOSSLESS', default="LOSSY")
 
     args = parser.parse_args()
