@@ -5,6 +5,7 @@ import logging
 import os.path
 import time
 from concurrent.futures import ThreadPoolExecutor
+from enum import Enum
 from http import HTTPStatus
 from typing import Dict
 from typing import List
@@ -43,6 +44,10 @@ class InvalidProfileNameException(Exception):
 class InvalidAPIKey(Exception):
     pass
 
+
+class HDROutputCompression(Enum):
+    LOSSY = "LOSSY"
+    LOSSLESS = "LOSSLESS"
 
 class ImagenAPIClient:
     STATUS_COMPLETED = 'Completed'
@@ -84,7 +89,8 @@ class ImagenAPIClient:
                               callback_url: Optional[str] = None, perspective_correction: bool = False,
                               window_pull: bool = False,
                               portrait_crop: bool = False, sky_replacement: bool = False,
-                              sky_replacement_template_id: Optional[int] = None):
+                              sky_replacement_template_id: Optional[int] = None,
+                              hdr_output_compression:Optional[HDROutputCompression] = HDROutputCompression.LOSSY):
         response = requests.post(os.path.join(self.base_url, f'projects/{project_uuid}/edit'),
                                  headers=self.headers,
                                  json={'crop': crop, "straighten": straighten,
@@ -97,7 +103,8 @@ class ImagenAPIClient:
                                        'perspective_correction': perspective_correction,
                                        'window_pull': window_pull,
                                        'sky_replacement': sky_replacement,
-                                       'sky_replacement_template_id': sky_replacement_template_id
+                                       'sky_replacement_template_id': sky_replacement_template_id,
+                                       "hdr_output_compression": hdr_output_compression
                                        })
         if response.status_code >= 400:
             logging.getLogger().error(response.json())
@@ -225,7 +232,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
         subject_mask: Optional[bool] = False, export: Optional[bool] = False,
         perspective_correction: Optional[bool] = False, portrait_crop: bool = False,
         window_pull: Optional[bool] = False,
-        include_md5: bool = False, sky_replacement: bool = False, sky_replacement_template_id: Optional[int] = None):
+        include_md5: bool = False, sky_replacement: bool = False, sky_replacement_template_id: Optional[int] = None,
+        hdr_output_compression: Optional[HDROutputCompression] = HDROutputCompression.LOSSY):
     if not profile_key and not profile_name:
         raise MissingAPIKeyException
     imagen_client = ImagenAPIClient(input_dir=input_dir, output_dir=output_dir,
@@ -246,7 +254,8 @@ def run(input_dir: str, output_dir: str, profile_key: Optional[str] = None, prof
                                         perspective_correction=perspective_correction,
                                         portrait_crop=portrait_crop,
                                         window_pull=window_pull, sky_replacement=sky_replacement,
-                                        sky_replacement_template_id=sky_replacement_template_id)
+                                        sky_replacement_template_id=sky_replacement_template_id,
+                                        hdr_output_compression=hdr_output_compression)
     # Wait until project status is completed
     imagen_client.wait_for_project_edit_to_complete(project_uuid=project_uuid)
     # Download all the artifacts
@@ -281,6 +290,10 @@ if __name__ == "__main__":
     parser.add_argument('--sky_replacement', action='store_true', help='Enable sky replacement?')
     parser.add_argument('--sky_replacement_template_id', type=int, required=False,
                         help='Sky replacement template id [1-3]', default=None)
+    # hdr_output_compression is only relevant for raw images using with hdr_merge
+    parser.add_argument('--hdr_output_compression', type=HDROutputCompression, required=False,
+                        help='The compression level of the output images. can either be LOSSY or LOSSLESS',
+                        default=None)
 
     args = parser.parse_args()
 
@@ -290,4 +303,5 @@ if __name__ == "__main__":
         smooth_skin=args.smooth_skin, perspective_correction=args.perspective_correction,
         window_pull=args.window_pull,
         portrait_crop=args.portrait_crop, include_md5=args.include_md5, sky_replacement=args.sky_replacement,
-        sky_replacement_template_id=args.sky_replacement_template_id)
+        sky_replacement_template_id=args.sky_replacement_template_id,
+        hdr_output_compression=args.hdr_output_compression)
